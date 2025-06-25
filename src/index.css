@@ -100,11 +100,11 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg;
+    @apply bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg;
   }
   
   .metric-card {
-    @apply bg-white/90 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02];
+    @apply bg-white/95 backdrop-blur-sm border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02];
   }
   
   .sidebar-item {
@@ -113,5 +113,13 @@
   
   .sidebar-item.active {
     @apply bg-white shadow-sm text-primary;
+  }
+  
+  .upload-dropzone {
+    @apply border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50/50 hover:bg-slate-100/50 transition-colors cursor-pointer;
+  }
+  
+  .upload-dropzone.dragover {
+    @apply border-indigo-400 bg-indigo-50/50;
   }
 }

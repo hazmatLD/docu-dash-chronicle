@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { DashboardLayout } from './DashboardLayout';
 import { OverviewDashboard } from './OverviewDashboard';
 import { DepartmentView } from './DepartmentView';
+import { PdfUpload } from './PdfUpload';
 
 const departments = [
   { id: 'overview', name: 'Overview' },
+  { id: 'upload', name: 'Upload PDFs' },
   { id: 'ops', name: 'Operations' },
   { id: 'bd', name: 'Business Development' },
   { id: 'marketing', name: 'Marketing' },
@@ -18,6 +20,10 @@ export function LiquiDonateDashboard() {
   const renderContent = () => {
     if (activeDepartment === 'overview') {
       return <OverviewDashboard />;
+    }
+    
+    if (activeDepartment === 'upload') {
+      return <PdfUpload />;
     }
     
     const dept = departments.find(d => d.id === activeDepartment);
