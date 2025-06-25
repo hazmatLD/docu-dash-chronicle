@@ -1,5 +1,5 @@
 
-import { LiquiDonateDashboard } from '@/components/LiquiDoonate-Dashboard';
+import { LiquiDonateDashboard } from '@/components/LiquiDonateDashboard';
 
 const Index = () => {
   return <LiquiDonateDashboard />;
