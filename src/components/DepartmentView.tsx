@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Target, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface OKR {
@@ -18,12 +18,6 @@ interface WeeklyUpdate {
   highlights: string[];
   lowlights: string[];
   date: string;
-}
-
-interface DepartmentViewProps {
-  departmentName: string;
-  okrs: OKR[];
-  weeklyUpdates: WeeklyUpdate[];
 }
 
 // Mock data for different departments
@@ -49,7 +43,7 @@ const mockDepartmentData = {
       }
     ]
   },
-  bd: {
+  'business dev': {
     okrs: [
       { id: '1', title: 'New retailer onboarding', target: 25, current: 18, unit: 'retailers' },
       { id: '2', title: 'Revenue per retailer', target: 15000, current: 12800, unit: '$ monthly' },
@@ -69,13 +63,19 @@ const mockDepartmentData = {
 export function DepartmentView({ departmentName }: { departmentName: string }) {
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>(['Week 23']);
   
-  const departmentKey = departmentName.toLowerCase().replace(' ', '').replace('business development', 'bd');
+  const departmentKey = departmentName.toLowerCase();
   const data = mockDepartmentData[departmentKey as keyof typeof mockDepartmentData];
   
   if (!data) {
     return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">No data available for {departmentName}</p>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Target className="h-8 w-8 text-slate-400" />
+          </div>
+          <p className="text-slate-600 font-medium">No data available for {departmentName}</p>
+          <p className="text-sm text-slate-400 mt-1">Upload weekly reports to see insights</p>
+        </div>
       </div>
     );
   }
@@ -90,39 +90,46 @@ export function DepartmentView({ departmentName }: { departmentName: string }) {
 
   const getProgressColor = (current: number, target: number) => {
     const percentage = (current / target) * 100;
-    if (percentage >= 90) return 'bg-green-500';
-    if (percentage >= 70) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (percentage >= 90) return 'from-emerald-500 to-green-500';
+    if (percentage >= 70) return 'from-yellow-500 to-orange-500';
+    return 'from-red-500 to-pink-500';
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* OKRs Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{departmentName} OKRs</CardTitle>
-          <CardDescription>Objectives and Key Results tracking</CardDescription>
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-indigo-600" />
+            <CardTitle className="text-slate-900">{departmentName} OKRs</CardTitle>
+          </div>
+          <CardDescription className="text-slate-600">
+            Objectives and Key Results tracking
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {data.okrs.map((okr) => {
               const percentage = (okr.current / okr.target) * 100;
               return (
-                <div key={okr.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{okr.title}</h4>
-                    <span className="text-sm text-muted-foreground">
-                      {okr.current} / {okr.target} {okr.unit}
-                    </span>
+                <div key={okr.id} className="space-y-3 p-4 bg-slate-50/50 rounded-xl">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-slate-900">{okr.title}</h4>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-slate-900">
+                        {okr.current} / {okr.target} {okr.unit}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1">
+                        {percentage.toFixed(1)}% complete
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                     <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(okr.current, okr.target)}`}
+                      className={`h-full bg-gradient-to-r transition-all duration-500 ${getProgressColor(okr.current, okr.target)}`}
                       style={{ width: `${Math.min(percentage, 100)}%` }}
                     />
-                  </div>
-                  <div className="text-right text-sm text-muted-foreground">
-                    {percentage.toFixed(1)}% complete
                   </div>
                 </div>
               );
@@ -132,13 +139,18 @@ export function DepartmentView({ departmentName }: { departmentName: string }) {
       </Card>
 
       {/* Weekly Updates */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly Updates</CardTitle>
-          <CardDescription>Highlights and lowlights timeline</CardDescription>
+      <Card className="glass-card">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-indigo-600" />
+            <CardTitle className="text-slate-900">Weekly Updates</CardTitle>
+          </div>
+          <CardDescription className="text-slate-600">
+            Highlights and lowlights timeline
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {data.weeklyUpdates.map((update) => (
               <Collapsible 
                 key={update.week}
@@ -146,37 +158,46 @@ export function DepartmentView({ departmentName }: { departmentName: string }) {
                 onOpenChange={() => toggleWeek(update.week)}
               >
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between p-4 h-auto bg-slate-50/50 hover:bg-slate-100/50 rounded-xl border-0"
+                  >
                     <div className="text-left">
-                      <div className="font-medium">{update.week}</div>
-                      <div className="text-sm text-muted-foreground">{update.date}</div>
+                      <div className="font-semibold text-slate-900">{update.week}</div>
+                      <div className="text-sm text-slate-500">{update.date}</div>
                     </div>
                     {expandedWeeks.includes(update.week) ? 
-                      <ChevronUp className="h-4 w-4" /> : 
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronUp className="h-4 w-4 text-slate-600" /> : 
+                      <ChevronDown className="h-4 w-4 text-slate-600" />
                     }
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="px-4 pb-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <h5 className="font-medium text-green-700 mb-2">Highlights</h5>
-                      <ul className="space-y-1">
+                  <div className="grid md:grid-cols-2 gap-6 mt-4">
+                    <div className="space-y-3">
+                      <h5 className="font-semibold text-emerald-700 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        Highlights
+                      </h5>
+                      <ul className="space-y-2">
                         {update.highlights.map((highlight, idx) => (
-                          <li key={idx} className="text-sm flex items-start">
-                            <span className="text-green-500 mr-2">•</span>
-                            {highlight}
+                          <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                            <span className="text-emerald-500 mt-1">•</span>
+                            <span>{highlight}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
-                    <div>
-                      <h5 className="font-medium text-red-700 mb-2">Lowlights</h5>
-                      <ul className="space-y-1">
+                    <div className="space-y-3">
+                      <h5 className="font-semibold text-red-700 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Lowlights
+                      </h5>
+                      <ul className="space-y-2">
                         {update.lowlights.map((lowlight, idx) => (
-                          <li key={idx} className="text-sm flex items-start">
-                            <span className="text-red-500 mr-2">•</span>
-                            {lowlight}
+                          <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                            <span className="text-red-500 mt-1">•</span>
+                            <span>{lowlight}</span>
                           </li>
                         ))}
                       </ul>
