@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Updated design system with modern aesthetics */
+/* Clean, modern design system without any yellow */
 
 @layer base {
   :root {
@@ -37,7 +37,7 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 248 250 252;
+    --sidebar-background: 255 255 255;
     --sidebar-foreground: 51 65 85;
     --sidebar-primary: 99 102 241;
     --sidebar-primary-foreground: 248 250 252;
@@ -100,7 +100,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg;
+    @apply bg-white/95 backdrop-blur-sm border border-slate-200/50 shadow-lg;
   }
   
   .metric-card {
@@ -108,11 +108,11 @@
   }
   
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-white/60;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-slate-100/60;
   }
   
   .sidebar-item.active {
-    @apply bg-white shadow-sm text-primary;
+    @apply bg-indigo-50 shadow-sm text-indigo-700 border border-indigo-200/50;
   }
   
   .upload-dropzone {

@@ -40,7 +40,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-white to-slate-50">
-        <Sidebar className="border-r-0 bg-white/80 backdrop-blur-xl">
+        <Sidebar className="border-r border-slate-200/50 bg-white/95 backdrop-blur-sm">
           <SidebarHeader className="p-6 border-b border-slate-200/50">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -74,7 +74,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </SidebarContent>
         </Sidebar>
         <SidebarInset className="flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/50 px-6 bg-white/80 backdrop-blur-sm">
+          <header className="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/50 px-6 bg-white/95 backdrop-blur-sm">
             <SidebarTrigger className="text-slate-600 hover:text-slate-900" />
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-semibold text-slate-900">
@@ -85,7 +85,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
           </header>
-          <div className="flex-1 p-6 space-y-6 overflow-auto bg-white">
+          <div className="flex-1 p-6 space-y-6 overflow-auto bg-gradient-to-br from-slate-50/50 via-white to-slate-50/50">
             {children}
           </div>
         </SidebarInset>
