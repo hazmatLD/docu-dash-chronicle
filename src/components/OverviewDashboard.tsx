@@ -2,7 +2,7 @@
 import { MetricsCard } from './MetricsCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, TrendingUp, Target } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Target, CheckCircle } from 'lucide-react';
 import { useData } from '../context/DataContext';
 
 const mockRevenueData = [

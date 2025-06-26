@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -60,6 +61,13 @@ const mockDepartmentData = {
   }
 };
 
+const getProgressColor = (current: number, target: number) => {
+  const percentage = (current / target) * 100;
+  if (percentage >= 90) return 'from-emerald-500 to-green-500';
+  if (percentage >= 70) return 'from-orange-500 to-yellow-500';
+  return 'from-red-500 to-pink-500';
+};
+
 export function DepartmentView({ departmentName }: { departmentName: string }) {
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>(['Week 23']);
   const { getDepartmentData, pdfData } = useData();
@@ -69,6 +77,14 @@ export function DepartmentView({ departmentName }: { departmentName: string }) {
   
   // Use real data if available, otherwise fall back to mock data
   const data = realData || (departmentKey === 'operations' || departmentKey === 'businessdevelopment' ? mockDepartmentData[departmentKey as keyof typeof mockDepartmentData] : null);
+  
+  const toggleWeek = (week: string) => {
+    setExpandedWeeks(prev => 
+      prev.includes(week) 
+        ? prev.filter(w => w !== week)
+        : [...prev, week]
+    );
+  };
   
   if (!data) {
     return (
@@ -288,57 +304,3 @@ export function DepartmentView({ departmentName }: { departmentName: string }) {
     </div>
   );
 }
-
-const mockDepartmentData = {
-  operations: {
-    okrs: [
-      { title: 'Reduce processing time', target: 100, current: 85, unit: '% improvement' },
-      { title: 'Increase automation coverage', target: 90, current: 72, unit: '% of processes' },
-      { title: 'Error rate reduction', target: 95, current: 88, unit: '% reduction' }
-    ],
-    weeklyUpdates: [
-      {
-        week: 'Week 23',
-        date: '2024-06-17',
-        highlights: ['Automated 3 new donation processing workflows', 'Reduced manual errors by 15%'],
-        lowlights: ['System downtime affected 2 retailers', 'Training delayed for new hires']
-      },
-      {
-        week: 'Week 22',
-        date: '2024-06-10',
-        highlights: ['Launched new dashboard for retailers', 'Improved API response time by 30%'],
-        lowlights: ['Integration issues with 1 major retailer', 'Staff shortage in QA team']
-      }
-    ]
-  },
-  businessdevelopment: {
-    okrs: [
-      { title: 'New retailer onboarding', target: 25, current: 18, unit: 'retailers' },
-      { title: 'Revenue per retailer', target: 15000, current: 12800, unit: '$ monthly' },
-      { title: 'Retention rate', target: 95, current: 92, unit: '% retained' }
-    ],
-    weeklyUpdates: [
-      {
-        week: 'Week 23',
-        date: '2024-06-17',
-        highlights: ['Signed 2 new major retailers', 'Closed $50K enterprise deal'],
-        lowlights: ['Lost 1 mid-tier client to competitor', 'Delayed contract renewal with key partner']
-      }
-    ]
-  }
-};
-
-const toggleWeek = (week: string) => {
-  setExpandedWeeks(prev => 
-    prev.includes(week) 
-      ? prev.filter(w => w !== week)
-      : [...prev, week]
-  );
-};
-
-const getProgressColor = (current: number, target: number) => {
-  const percentage = (current / target) * 100;
-  if (percentage >= 90) return 'from-emerald-500 to-green-500';
-  if (percentage >= 70) return 'from-orange-500 to-yellow-500';
-  return 'from-red-500 to-pink-500';
-};
