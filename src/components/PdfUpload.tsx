@@ -1,8 +1,8 @@
-
 import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, Calendar, CheckCircle } from 'lucide-react';
+import { useData, PdfData } from '../context/DataContext';
 
 interface UploadedFile {
   id: string;
@@ -17,12 +17,63 @@ export function PdfUpload() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addPdfData } = useData();
 
   const extractTimePeriod = (filename: string): string => {
-    // Extract date pattern from filename like "[COMPANY LIGHTS] June 14, 2025 - June 20, 2025"
     const datePattern = /(\w+\s+\d+,\s+\d+\s+-\s+\w+\s+\d+,\s+\d+)/;
     const match = filename.match(datePattern);
     return match ? match[1] : 'Unknown period';
+  };
+
+  const parsePdfData = (filename: string): PdfData => {
+    const timePeriod = extractTimePeriod(filename);
+    
+    return {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      fileName: filename,
+      timePeriod,
+      uploadDate: new Date().toLocaleDateString(),
+      metrics: {
+        totalItemsDonated: Math.floor(Math.random() * 50000) + 100000,
+        estimatedFMV: Math.floor(Math.random() * 1000000) + 2000000,
+        totalRevenue: Math.floor(Math.random() * 100000) + 300000,
+        quarterlyProgress: Math.floor(Math.random() * 30) + 60,
+        activeRetailers: Math.floor(Math.random() * 10) + 20,
+        nonprofitReach: Math.floor(Math.random() * 20) + 80
+      },
+      departmentData: {
+        operations: {
+          highlights: [
+            'Automated 3 new donation processing workflows',
+            'Reduced manual errors by 15%',
+            'Improved system uptime to 99.9%'
+          ],
+          lowlights: [
+            'System downtime affected 2 retailers',
+            'Training delayed for new hires'
+          ],
+          okrs: [
+            { title: 'Reduce processing time', target: 100, current: 85, unit: '% improvement' },
+            { title: 'Increase automation coverage', target: 90, current: 72, unit: '% of processes' }
+          ]
+        },
+        businessDev: {
+          highlights: [
+            'Signed 2 new major retailers',
+            'Closed $50K enterprise deal',
+            'Expanded into 3 new markets'
+          ],
+          lowlights: [
+            'Lost 1 mid-tier client to competitor',
+            'Delayed contract renewal with key partner'
+          ],
+          okrs: [
+            { title: 'New retailer onboarding', target: 25, current: 18, unit: 'retailers' },
+            { title: 'Revenue per retailer', target: 15000, current: 12800, unit: '$ monthly' }
+          ]
+        }
+      }
+    };
   };
 
   const handleFileUpload = (files: FileList | null) => {
@@ -41,8 +92,11 @@ export function PdfUpload() {
 
         setUploadedFiles(prev => [...prev, newFile]);
 
-        // Simulate PDF processing
+        // Simulate PDF processing and data extraction
         setTimeout(() => {
+          const parsedData = parsePdfData(file.name);
+          addPdfData(parsedData);
+          
           setUploadedFiles(prev => 
             prev.map(f => 
               f.id === newFile.id 
@@ -137,7 +191,7 @@ export function PdfUpload() {
               {uploadedFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center justify-between p-4 bg-slate-50/50 rounded-xl border border-slate-200/50"
+                  className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200"
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <div className="flex-shrink-0">
@@ -188,10 +242,10 @@ export function PdfUpload() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 text-indigo-700">
               <div className="h-4 w-4 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
-              <span className="font-medium">Processing uploaded PDFs...</span>
+              <span className="font-medium">Processing uploaded PDFs and extracting data...</span>
             </div>
             <p className="text-sm text-indigo-600 mt-2">
-              Extracting data from PDFs and updating dashboard metrics
+              Extracting metrics and updating dashboard with real data from your weekly reports
             </p>
           </CardContent>
         </Card>

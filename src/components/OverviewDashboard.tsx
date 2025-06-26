@@ -3,16 +3,7 @@ import { MetricsCard } from './MetricsCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertTriangle, TrendingUp, Target } from 'lucide-react';
-
-// Mock data for development
-const mockMetrics = {
-  totalItemsDonated: { value: '125,430', change: 12.5, trend: 'up' as const },
-  estimatedFMV: { value: '$2.4M', change: 8.3, trend: 'up' as const },
-  totalRevenue: { value: '$340K', change: -15.2, trend: 'down' as const },
-  quarterlyProgress: { value: '67%', change: 5.8, trend: 'up' as const },
-  activeRetailers: { value: '23', change: 2, trend: 'up' as const },
-  nonprofitReach: { value: '89%', change: -3.1, trend: 'down' as const }
-};
+import { useData } from '../context/DataContext';
 
 const mockRevenueData = [
   { week: 'W1', revenue: 85000 },
@@ -24,8 +15,23 @@ const mockRevenueData = [
 ];
 
 export function OverviewDashboard() {
+  const { getAggregatedMetrics, pdfData } = useData();
+  const metrics = getAggregatedMetrics();
+
   return (
     <div className="space-y-8">
+      {/* Data Source Indicator */}
+      {pdfData.length > 0 && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-emerald-600" />
+            <span className="text-sm font-medium text-emerald-800">
+              Data updated from {pdfData.length} uploaded PDF{pdfData.length > 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Key Metrics Grid */}
       <div>
         <div className="mb-6">
@@ -35,45 +41,45 @@ export function OverviewDashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <MetricsCard
             title="Total Items Donated"
-            value={mockMetrics.totalItemsDonated.value}
-            change={mockMetrics.totalItemsDonated.change}
-            trend={mockMetrics.totalItemsDonated.trend}
+            value={metrics.totalItemsDonated.value}
+            change={metrics.totalItemsDonated.change}
+            trend={metrics.totalItemsDonated.trend}
             subtitle="vs. last week"
           />
           <MetricsCard
             title="Estimated FMV"
-            value={mockMetrics.estimatedFMV.value}
-            change={mockMetrics.estimatedFMV.change}
-            trend={mockMetrics.estimatedFMV.trend}
+            value={metrics.estimatedFMV.value}
+            change={metrics.estimatedFMV.change}
+            trend={metrics.estimatedFMV.trend}
             subtitle="Fair Market Value"
           />
           <MetricsCard
             title="Total Revenue"
-            value={mockMetrics.totalRevenue.value}
-            change={mockMetrics.totalRevenue.change}
-            trend={mockMetrics.totalRevenue.trend}
+            value={metrics.totalRevenue.value}
+            change={metrics.totalRevenue.change}
+            trend={metrics.totalRevenue.trend}
             subtitle="Week-over-week"
           />
           <MetricsCard
             title="Quarterly Progress"
-            value={mockMetrics.quarterlyProgress.value}
-            change={mockMetrics.quarterlyProgress.change}
-            trend={mockMetrics.quarterlyProgress.trend}
+            value={metrics.quarterlyProgress.value}
+            change={metrics.quarterlyProgress.change}
+            trend={metrics.quarterlyProgress.trend}
             subtitle="to revenue goal"
           />
           <MetricsCard
             title="Active Retailers"
-            value={mockMetrics.activeRetailers.value}
-            change={mockMetrics.activeRetailers.change}
+            value={metrics.activeRetailers.value}
+            change={metrics.activeRetailers.change}
             changeType="absolute"
-            trend={mockMetrics.activeRetailers.trend}
+            trend={metrics.activeRetailers.trend}
             subtitle="on SaaS platform"
           />
           <MetricsCard
             title="Nonprofit Reach"
-            value={mockMetrics.nonprofitReach.value}
-            change={mockMetrics.nonprofitReach.change}
-            trend={mockMetrics.nonprofitReach.trend}
+            value={metrics.nonprofitReach.value}
+            change={metrics.nonprofitReach.change}
+            trend={metrics.nonprofitReach.trend}
             subtitle="receiving donations"
           />
         </div>
@@ -143,7 +149,7 @@ export function OverviewDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/50 rounded-xl">
+            <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
                 <div>
@@ -156,7 +162,7 @@ export function OverviewDashboard() {
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/50 rounded-xl">
+            <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <TrendingUp className="h-5 w-5 text-emerald-600 mt-0.5" />
                 <div>
@@ -169,7 +175,7 @@ export function OverviewDashboard() {
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-xl">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <Target className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>

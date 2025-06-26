@@ -4,6 +4,7 @@ import { DashboardLayout } from './DashboardLayout';
 import { OverviewDashboard } from './OverviewDashboard';
 import { DepartmentView } from './DepartmentView';
 import { PdfUpload } from './PdfUpload';
+import { DataProvider } from '../context/DataContext';
 
 const departments = [
   { id: 'overview', name: 'Overview' },
@@ -31,28 +32,30 @@ export function LiquiDonateDashboard() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-4">
-        {/* Department Navigation */}
-        <div className="flex space-x-2 border-b pb-4">
-          {departments.map((dept) => (
-            <button
-              key={dept.id}
-              onClick={() => setActiveDepartment(dept.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeDepartment === dept.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted hover:bg-muted/80'
-              }`}
-            >
-              {dept.name}
-            </button>
-          ))}
+    <DataProvider>
+      <DashboardLayout>
+        <div className="space-y-4">
+          {/* Department Navigation */}
+          <div className="flex space-x-2 border-b pb-4">
+            {departments.map((dept) => (
+              <button
+                key={dept.id}
+                onClick={() => setActiveDepartment(dept.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  activeDepartment === dept.id
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
+              >
+                {dept.name}
+              </button>
+            ))}
+          </div>
+          
+          {/* Dynamic Content */}
+          {renderContent()}
         </div>
-        
-        {/* Dynamic Content */}
-        {renderContent()}
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </DataProvider>
   );
 }
