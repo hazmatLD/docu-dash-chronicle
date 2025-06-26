@@ -1,5 +1,5 @@
-
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import localforage from 'localforage';
 
 export interface PdfData {
   id: string;
@@ -64,6 +64,10 @@ interface DataContextType {
   removePdfData: (id: string) => void;
   getAggregatedMetrics: () => any;
   getDepartmentData: (department: string) => any;
+  /**
+   * For dev/testing only: clears all PDF data from storage and context.
+   */
+  clearPdfData?: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -79,12 +83,30 @@ export const useData = () => {
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [pdfData, setPdfData] = useState<PdfData[]>([]);
 
+  // Load from localforage on mount
+  useEffect(() => {
+    localforage.getItem<PdfData[]>('pdfData').then((data) => {
+      if (data) setPdfData(data);
+    });
+  }, []);
+
+  // Save to localforage on change
+  useEffect(() => {
+    localforage.setItem('pdfData', pdfData);
+  }, [pdfData]);
+
   const addPdfData = (data: PdfData) => {
     setPdfData(prev => [...prev, data]);
   };
 
   const removePdfData = (id: string) => {
     setPdfData(prev => prev.filter(item => item.id !== id));
+  };
+
+  // Utility for dev/testing
+  const clearPdfData = async () => {
+    await localforage.removeItem('pdfData');
+    setPdfData([]);
   };
 
   const getAggregatedMetrics = () => {
@@ -148,7 +170,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addPdfData,
       removePdfData,
       getAggregatedMetrics,
-      getDepartmentData
+      getDepartmentData,
+      clearPdfData
     }}>
       {children}
     </DataContext.Provider>

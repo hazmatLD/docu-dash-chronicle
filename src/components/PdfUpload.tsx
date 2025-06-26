@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, X, Calendar, CheckCircle } from 'lucide-react';
 import { useData, PdfData } from '../context/DataContext';
+import localforage from 'localforage';
+import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/build/pdf.worker.entry';
 
 interface UploadedFile {
   id: string;
@@ -76,10 +79,10 @@ export function PdfUpload() {
     };
   };
 
-  const handleFileUpload = (files: FileList | null) => {
+  const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
+    for (const file of Array.from(files)) {
       if (file.type === 'application/pdf') {
         const newFile: UploadedFile = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -89,24 +92,52 @@ export function PdfUpload() {
           uploadDate: new Date().toLocaleDateString(),
           status: 'processing'
         };
-
         setUploadedFiles(prev => [...prev, newFile]);
 
-        // Simulate PDF processing and data extraction
-        setTimeout(() => {
-          const parsedData = parsePdfData(file.name);
-          addPdfData(parsedData);
-          
-          setUploadedFiles(prev => 
-            prev.map(f => 
-              f.id === newFile.id 
-                ? { ...f, status: 'completed' }
-                : f
-            )
-          );
-        }, 2000);
+        // Read PDF as ArrayBuffer
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          fullText += content.items
+            .map(item => ('str' in item ? item.str : ''))
+            .join(' ') + '\n';
+        }
+
+        // Parse stats, highlights, lowlights from text
+        const stats = extractStats(fullText);
+        const { highlights, lowlights } = extractHighlightsLowlights(fullText);
+        const timePeriod = extractTimePeriod(file.name);
+
+        // Store file in localforage for persistence
+        await localforage.setItem(`pdf-file-${newFile.id}`, arrayBuffer);
+
+        // Build parsedData
+        const parsedData: PdfData = {
+          id: newFile.id,
+          fileName: file.name,
+          timePeriod,
+          uploadDate: newFile.uploadDate,
+          metrics: stats,
+          departmentData: {
+            operations: {
+              highlights: highlights.operations,
+              lowlights: lowlights.operations,
+              okrs: [] // TODO: Parse OKRs if present
+            },
+            businessDev: {
+              highlights: highlights.businessDev,
+              lowlights: lowlights.businessDev,
+              okrs: [] // TODO: Parse OKRs if present
+            }
+          }
+        };
+        addPdfData(parsedData);
+        setUploadedFiles(prev => prev.map(f => f.id === newFile.id ? { ...f, status: 'completed' } : f));
       }
-    });
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -252,4 +283,51 @@ export function PdfUpload() {
       )}
     </div>
   );
+}
+
+// Helper: Extract stats from text
+function extractStats(text: string) {
+  // Example: Use regex to find numbers for stats
+  // You should adapt these patterns to your PDF format
+  const totalItemsDonated = parseInt((/Total Items Donated:\s*([\d,]+)/i.exec(text)?.[1] || '0').replace(/,/g, ''));
+  const estimatedFMV = parseInt((/Estimated FMV:\s*\$?([\d,]+)/i.exec(text)?.[1] || '0').replace(/,/g, ''));
+  const totalRevenue = parseInt((/Total Revenue:\s*\$?([\d,]+)/i.exec(text)?.[1] || '0').replace(/,/g, ''));
+  const quarterlyProgress = parseInt((/Quarterly Progress:\s*(\d+)%/i.exec(text)?.[1] || '0'));
+  const activeRetailers = parseInt((/Active Retailers:\s*(\d+)/i.exec(text)?.[1] || '0'));
+  const nonprofitReach = parseInt((/Nonprofit Reach:\s*(\d+)%/i.exec(text)?.[1] || '0'));
+  return {
+    totalItemsDonated,
+    estimatedFMV,
+    totalRevenue,
+    quarterlyProgress,
+    activeRetailers,
+    nonprofitReach
+  };
+}
+
+// Helper: Extract highlights and lowlights
+function extractHighlightsLowlights(text: string) {
+  // Example: Use regex or section splitting
+  // You should adapt these patterns to your PDF format
+  const highlightsOps = extractSection(text, /Operations Highlights:(.*?)(?:Lowlights:|$)/is);
+  const lowlightsOps = extractSection(text, /Operations Lowlights:(.*?)(?:Highlights:|$)/is);
+  const highlightsBD = extractSection(text, /Business Development Highlights:(.*?)(?:Lowlights:|$)/is);
+  const lowlightsBD = extractSection(text, /Business Development Lowlights:(.*?)(?:Highlights:|$)/is);
+  return {
+    highlights: {
+      operations: highlightsOps,
+      businessDev: highlightsBD
+    },
+    lowlights: {
+      operations: lowlightsOps,
+      businessDev: lowlightsBD
+    }
+  };
+}
+
+function extractSection(text: string, regex: RegExp) {
+  const match = regex.exec(text);
+  if (!match || !match[1]) return [];
+  // Split by line or bullet
+  return match[1].split(/\n|•|\*/).map(s => s.trim()).filter(Boolean);
 }

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -64,7 +63,7 @@ const mockDepartmentData = {
 const getProgressColor = (current: number, target: number) => {
   const percentage = (current / target) * 100;
   if (percentage >= 90) return 'from-emerald-500 to-green-500';
-  if (percentage >= 70) return 'from-orange-500 to-yellow-500';
+  if (percentage >= 70) return 'from-blue-500 to-indigo-500';
   return 'from-red-500 to-pink-500';
 };
 
